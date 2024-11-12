@@ -1,3 +1,5 @@
+const { signToken, setToken, createSessions } = require('./signin')
+
 const handleRegister = (req, res, db, bcrypt) => {
   const { email, name, password } = req.body;
   if (!email || !name || !password) {
@@ -24,13 +26,34 @@ const handleRegister = (req, res, db, bcrypt) => {
             joined: new Date()
           })
           .then(user => {
-            res.json(user[0]);
-          })
+            return trx.commit() // Commit the transaction
+              .then(() => {
+                return createSessions(user[0])
+                  .then(session => {
+                    console.log('session:', session)
+                    res.json({ user: user[0], token: session.token })
+                })
+                // Create a session after committing
+                // return createSessions(user[0]).then(session => {
+                //   // Optionally, you can log or handle the session as needed
+                // });
+                // res.json(user[0])
+              });
+          });
+          
+          // .then(user => {
+          //   res.json(user[0]);
+          // })
       })
-      .then(trx.commit)
-      .catch(trx.rollback)
+      .catch(err => {
+        console.error('Transaction error:', err); // Log transaction error
+        trx.rollback();
+        res.status(400).json('unable to register');
+      });
+      // .then(trx.commit)
+      // .catch(trx.rollback)
     })
-    .catch(err => res.status(400).json('unable to register'))
+    .catch(err => res.status(400).json('.catch unable to register'))
 }
 
 module.exports = {
