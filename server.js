@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express');
 const bodyParser = require('body-parser'); // latest version of exressJS now comes with Body-Parser!
 const bcrypt = require('bcrypt-nodejs');
@@ -26,7 +28,7 @@ app.use(express.json()); // latest version of exressJS now comes with Body-Parse
 app.use(morgan('combined'));
 const PORT = 3000;
 
-// bcrypt.hash(123, null, null, (err, hash) => {
+// bcrypt.hash(***ENTER PASSWORD HERE***, null, null, (err, hash) => {
 //   if (err) throw err;
 //   console.log(hash); // Use this hash in your seed.sql
 // });
@@ -39,10 +41,6 @@ app.post('/profile/:id', auth.requireAuth, (req, res) => {profile.handleProfileU
 app.put('/image', auth.requireAuth, (req, res) => { image.handleImage(req, res, db)})
 app.post('/imageurl', auth.requireAuth, (req, res) => { image.handleApiCall(req, res)})
 app.post('/signout', signout.handleSignOut);
-
-// app.listen(3000, ()=> {
-//   console.log('app is running on port 3000');
-// })
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`App is running on port ${PORT}`);
